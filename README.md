@@ -1,25 +1,35 @@
-This repository contains materials presented at LambdaClub, an informal
-meeting of functional programming enthusiasts at the School of Computing,
-University of Kent. LambdaClub meets on Wednesdays at 2pm during term time
-(usually in SW101, but sometimes elsewhere)
-and is open to all at the University. Sign up to the mailing list at 
-https://lists.kent.ac.uk/sympa/info/lambda-club
+# Creating your own language with the lambda calculus as the core.
 
-Index of content, in reverse chronological order
+## Implementation
 
-| [folder]       | [presenter]     | [date]     | [title]                                         |
-| -------------  | --------------- | ---------- | ----------------------------------------------- |
-| lambda-series  | Dominic Orchard | 2019 Autumn | 10 sessions: Creating your own language with the lambda calculus as the core. |
-|                | Will Hendy      | 03/04/2018 | Overview of paper: [Disjoint Intersection Types](http://i.cs.hku.hk/~bruno/papers/icfp2016.pdf) |
-|                | Vilem Liepelt   | 27/03/2018 | Overview of paper: [L3 : A Linear Language with Locations](https://pdfs.semanticscholar.org/b709/8321200d71320a2bce7477e78c32784fd8e9.pdf) |
-| ocaml-intro    | Simon Cooksey   | 20/02/2018 | Introduction to OCaml (via an expression interpreter) |
-| linear-lambda  | Dominic Orchard | 27/02/2018 | An introduction to the linear lambda calculus and linear types |
-| memoize        | Dominic Orchard | 13/02/2018 | Memoising recursive functions: or being lazy to be fast |
-| sierpinski     | -               | 01/03/2017 | Functions and fractals: Sierpinski triangles    |
-| game-of-kyles  | -               | 22/02/2017 | Pair programming: Game of Kyles problem         |
-| competitions       | Radu Grigore     | 08/02/2017 | Programming Competitions and Functional Programming |
-| coq-curry-howard         | Hugo Férée     | 14/12/2016 | Proof as programs / Programs as proofs and Extraction in Coq |
-| fsharp-units-of-measure | Dominic Orchard | 07/12/2016 | F# and units-of-measure types: or How To Not Blow-Up a $200million Spaceship |  
-| alg-data-types | Li-yao Xia      | 30/11/2016 | Crafting types so programs can't go wrong       |
-| hask-num-class | Dominic Orchard | 23/11/2016 | 2+2=5: Exploring Haskell's overloaded numerics  |
+Build and install using stack via `stack install`.
 
+Get stack here: http://docs.haskellstack.org/en/stable/README/
+(will automatically pull in GHC and all the requirements for you).
+
+## Example programs
+
+See `programs/simple.lam` and `test.lam`.
+
+## Rough idea for the list of topics:
+    
+ - [x] Session 1: Intro to the syntax and concepts of the lambda calculus, 
+    including operational semantics.
+    
+ - [x]  Session 2: A first implementation: parsing, printing, and interpreting 
+    the lambda calculus (written in Haskell) [video (Kent only)](https://kent.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=7d6df6a1-c4b7-42e2-a4b3-aae100d89b17)
+ - [x]  Session 3: Church encodings (natural numbers, booleans, recursion) and some playing with the implementation. [video (Kent only)](https://kent.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=6ff8fedf-125b-40bf-86f3-aae8010b4383)
+ - [x]  Session 4: Formally defining a type system via the simply-typed lambda 
+    calculus
+ - [x]  Session 5: Algorithmically defining a type system: type checking and 
+    type inference [video (Kent only)](https://kent.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=86ff0fcd-1702-4c92-8102-aaf600fa82a8)
+ - [x] Session 6: PCF and PCF typing
+ - [x] Session 7: The Curry-Howard correspondence in more detail (types vs. logic)
+ - [x] Session 8: Call-By-Value vs. Call-By-Name reduction.
+ - [x] Session 9: Polymorphism (System F)
+ - [x] Session 10: Polymorphic lambda-calculus typing and Theorems for Free.
+ 
+ ---------------------------------------------
+ 
+ - [ ] Session Y: Implementing ML-style polymorphic types (Hindley-Milner algorithm 
+    and related).
