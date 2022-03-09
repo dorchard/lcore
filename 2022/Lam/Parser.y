@@ -27,8 +27,6 @@ import Lam.Syntax
     '='     { TokenEq _ }
     '('     { TokenLParen _ }
     ')'     { TokenRParen _ }
-    
-    
 
 %right '->'
 %%
@@ -48,8 +46,7 @@ Def :: { Expr -> Expr }
   : VAR '=' Expr { \program -> App (Abs (symString $1) program) $3 }
 
 Expr :: { Expr }
-  : '\\' VAR '->' Expr
-    { Abs (symString $2) $4 }
+  : '\\' VAR '->' Expr        { Abs (symString $2) $4 }
 
   | Juxt
     { $1 }

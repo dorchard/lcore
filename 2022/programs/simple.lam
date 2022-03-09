@@ -1,1 +1,10 @@
-((\x -> \y -> x) a b)
+-- s = \x -> \y -> \z -> x z (y z)
+k = \x -> \y -> x
+i = \z -> z
+i (k a b)
+
+-- Landin (1966 - The Next 700 Programming Languages)
+--
+--   let x = t1 in t2
+-- ==
+--   (\x -> t2) t1
