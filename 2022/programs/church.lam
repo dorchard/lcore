@@ -1,0 +1,27 @@
+-- numerals (nats)
+zero = \f -> \x -> x
+one  = \f -> \x -> f x
+two  = \f -> \x -> f (f x)
+three = \f -> \x -> f (f (f x))
+
+plus = \a -> \b -> \f -> \x -> a f (b f x)
+mult = \a -> \b -> \f -> \x -> a (b f) x
+
+pred =
+  \n -> \f -> \x -> n (\g -> \h -> h (g f)) (\u -> x) (\u -> u)
+
+-- booleans (choice)
+true = \x -> \y -> x
+false = \x -> \y -> y
+ifZero = \n -> n (\x -> false) true
+
+-- recursion
+-- satisfies fixed point equation:  y f = f (y f)
+y = \f -> (\x -> f (x x)) (\x -> f (x x))
+
+-- factorial
+fact =
+  y (\fact' -> \n -> ifZero n one (mult n (fact' (pred n))))
+
+fact (plus three three)
+
