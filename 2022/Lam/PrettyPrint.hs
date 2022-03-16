@@ -19,7 +19,6 @@ bracket_pprint t | isLexicallyAtomic t = pprint t
 -- Untyped lambda calculus
 instance PrettyPrint Expr where
     isLexicallyAtomic (Var _)     = True
-    isLexicallyAtomic (App e1 e2) = isLexicallyAtomic e1 && isLexicallyAtomic e2
     isLexicallyAtomic _           = False
 
     pprint (Abs var e) = "\\" ++ var ++ " -> " ++ pprint e ++ ""
