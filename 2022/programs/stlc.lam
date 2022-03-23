@@ -1,0 +1,3 @@
+lang.typed
+
+\(x : A) -> \(y : A -> B) -> y x
