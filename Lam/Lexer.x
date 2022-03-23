@@ -109,7 +109,7 @@ data Token
 
 symString :: Token -> String
 symString (TokenSym _ x) = x
-symString _ = error "Not a symbol"
+symString t = error $ "Not a symbol " ++ show t
 
 constrString :: Token -> String
 constrString (TokenConstr _ x) = x

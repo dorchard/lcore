@@ -33,15 +33,17 @@ tokens :-
   $white*$eol                   { \p s -> TokenNL p }
   $eol+                         { \p s -> TokenNL p }
   $white+                       ;
+  @constr                       { \p s -> TokenConstr p s }
   "--".*                        ;
   @sym				                  { \p s -> TokenSym p s }
   "->"                          { \p s -> TokenArrow p }
+  ":"                           { \p s -> TokenColon p }
   \\                            { \p s -> TokenLambda p }
   \=                            { \p s -> TokenEq p }
   \(                            { \p s -> TokenLParen p }
   \)                            { \p s -> TokenRParen p }
   lang\.@langPrag               { \p s -> TokenLang p s }
-  
+
 {
 
 data Token
@@ -54,11 +56,12 @@ data Token
   | TokenNL       { posn :: AlexPosn }
   | TokenLang     { posn :: AlexPosn, sym :: String }
   | TokenConstr   { posn :: AlexPosn, sym :: String }
+  | TokenColon    { posn :: AlexPosn }
   deriving (Eq, Show, Generic)
 
 symString :: Token -> String
 symString (TokenSym _ x) = x
-symString _ = error "Not a symbol"
+symString t = error $ "Not a symbol " ++ show t
 
 scanTokens = alexScanTokens >>= (return . trim)
 

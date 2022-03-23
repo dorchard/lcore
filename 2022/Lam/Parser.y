@@ -27,7 +27,9 @@ import Lam.Options
     '\\'    { TokenLambda _ }
     '->'    { TokenArrow _ }
     VAR     { TokenSym _ _ }
+    CONSTR  { TokenConstr _ _ }
     '='     { TokenEq _ }
+    ':'     { TokenColon _ }
     '('     { TokenLParen _ }
     ')'     { TokenRParen _ }
     LANG    { TokenLang _ _ }
@@ -53,13 +55,19 @@ NL :: { () }
   | nl                        { }
 
 Def :: { Expr -> Expr }
-  : VAR '=' Expr { \program -> App (Abs (symString $1) program) $3 }
+  : VAR '=' Expr { \program -> App (Abs (symString $1) Nothing program) $3 }
 
 Expr :: { Expr }
-  : '\\' VAR '->' Expr        { Abs (symString $2) $4 }
+  : '\\' VAR '->' Expr        { Abs (symString $2) Nothing $4 }
 
+  | '\\' '(' VAR ':' Type ')' '->' Expr
+                              { Abs (symString $3) (Just $5) $8 }
   | Juxt
     { $1 }
+
+Type :: { Type }
+  : Type '->' Type            { FunTy $1 $3 }
+  | CONSTR                    { Cons (sym $1) }
 
 Juxt :: { Expr }
   : Juxt Atom                 { App $1 $2 }
