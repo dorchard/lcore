@@ -19,6 +19,7 @@ executable lcore
   main-is: Main.hs
   other-modules:
       Lam.Lexer
+      Lam.Options
       Lam.Parser
       Lam.Syntax
       Lam.Semantics

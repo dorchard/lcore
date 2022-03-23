@@ -40,6 +40,7 @@ tokens :-
   \=                            { \p s -> TokenEq p }
   \(                            { \p s -> TokenLParen p }
   \)                            { \p s -> TokenRParen p }
+  lang\.@langPrag               { \p s -> TokenLang p s }
   
 {
 
@@ -51,6 +52,7 @@ data Token
   | TokenLParen   { posn :: AlexPosn }
   | TokenRParen   { posn :: AlexPosn }
   | TokenNL       { posn :: AlexPosn }
+  | TokenLang     { posn :: AlexPosn, sym :: String }
   deriving (Eq, Show, Generic)
 
 symString :: Token -> String

@@ -6,10 +6,13 @@ module Lam.Parser where
 import Numeric
 import System.Exit
 import Control.Monad.Trans.Reader
+import Control.Monad.Trans.State
 import Control.Monad.Trans.Class (lift)
 
 import Lam.Lexer
 import Lam.Syntax
+import Lam.Options
+
 
 }
 
@@ -17,7 +20,7 @@ import Lam.Syntax
 %name expr Expr
 %tokentype { Token }
 %error { parseError }
-%monad { ReaderT String (Either String) }
+%monad { StateT [Option] (ReaderT String (Either String)) }
 
 %token
     nl      { TokenNL _ }
@@ -27,12 +30,19 @@ import Lam.Syntax
     '='     { TokenEq _ }
     '('     { TokenLParen _ }
     ')'     { TokenRParen _ }
+    LANG    { TokenLang _ _ }
 
 %right '->'
 %%
 
 Program :: { Expr }
-  : Defs  { $1 }
+  : LangOpts Defs  { $2 }
+
+LangOpts :: { () }
+  : LANG NL LangOpts    {% (readOption $1) >>= addOption }
+  | LANG                {% readOption $1 >>= addOption }
+  | {- empty -}         { () }
+
 
 Defs :: { Expr }
   : Def NL Defs           { $1 $3 }
@@ -60,16 +70,28 @@ Atom :: { Expr }
   | VAR                       { Var $ symString $1 }
   
 {
+type ParserMonad a = StateT [Option] (ReaderT String (Either String)) a
 
-parseError :: [Token] -> ReaderT String (Either String) a
-parseError [] = lift . Left $ "Premature end of file"
+
+readOption :: Token -> ParserMonad Option
+readOption (TokenLang _ x) | x == "lang.typed" = return Typed
+readOption (TokenLang _ x) = lift . lift . Left $ "Unknown language option: " <> x
+readOption _ = lift . lift . Left $ "Wrong token for language"
+
+addOption :: Option -> ParserMonad ()
+addOption opt = do
+  opts <- get
+  put $ opt : opts
+
+parseError :: [Token] -> ParserMonad a
+parseError [] = lift . lift . Left $ "Premature end of file"
 parseError t  =  do
-    file <- ask
-    lift . Left $ file <> ":" <> show l <> ":" <> show c
+    file <- lift $ ask
+    lift . lift . Left $ file <> ":" <> show l <> ":" <> show c
                         <> ": parse error"
   where (l, c) = getPos (head t)
 
-parseProgram :: FilePath -> String -> Either String Expr
-parseProgram file input = runReaderT (program $ scanTokens input) file
+parseProgram :: FilePath -> String -> Either String (Expr, [Option])
+parseProgram file input = runReaderT (runStateT (program $ scanTokens input) []) file
 
 }
