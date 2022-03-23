@@ -53,6 +53,7 @@ data Token
   | TokenRParen   { posn :: AlexPosn }
   | TokenNL       { posn :: AlexPosn }
   | TokenLang     { posn :: AlexPosn, sym :: String }
+  | TokenConstr   { posn :: AlexPosn, sym :: String }
   deriving (Eq, Show, Generic)
 
 symString :: Token -> String
