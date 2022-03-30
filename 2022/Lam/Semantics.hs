@@ -59,8 +59,16 @@ subst (Var y) t' x | y == x    = t'
 subst (App t1 t2) t' x         = App (subst t1 t' x) (subst t2 t' x)
 
 subst (Abs y mty t)   t' x =
+  Abs y' mty t''
+  where
+    (y', t'') = substituteUnderBinder (y, t) t' x
+
+-- substituteUnderBinder (y, t) t' x = (y', t'')
+--  substitutes t' into t to yield t'' where y is a binder in t which gets freshened to y'
+substituteUnderBinder :: (Identifier, Expr) -> Expr -> Identifier -> (Identifier, Expr)
+substituteUnderBinder (y, t) t' x =
   if x == y
-    then Abs y mty t
+    then (y, t)
     else
       if y `elem` freeVars t'
         then
