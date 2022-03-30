@@ -107,4 +107,25 @@ synth gamma (App t1 t2) =
     Right _ -> Left $ "Left hand side of application " ++ pprint t1 ++ " is not a function"
     Left err -> Left err
 
+
+synth gamma Zero =
+  Right (Cons "Nat")
+
+synth gamma (Succ t) =
+  case check gamma t (Cons "Nat") of
+    Right True -> Right (Cons "Nat")
+    Right False -> Left $ "Expected type Nat"
+    Left err -> Left err
+
+synth gamma (Case t t1 (y, t2)) =
+ case check gamma t (Cons "Nat") of
+   Right True ->
+     case synth gamma t1 of
+       Right tyA ->
+         case check ((y,Cons "Nat"):gamma) t2 tyA of
+           Right True -> return tyA
+           _ -> undefined
+       _ -> undefined
+   _ -> undefined
+
 synth _ t = Left $ "Cannot infer type of `" ++ pprint t ++ "`. Add more type signatures."

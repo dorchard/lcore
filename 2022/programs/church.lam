@@ -23,5 +23,5 @@ y = \f -> (\x -> f (x x)) (\x -> f (x x))
 fact =
   y (\fact' -> \n -> ifZero n one (mult n (fact' (pred n))))
 
-fact (plus three three)
+fact (plus one three)
 

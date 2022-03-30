@@ -46,6 +46,25 @@ step (Abs y mty t) =
     Just t' -> Just (Abs y mty t')
     Nothing -> Nothing
 
+step (Succ t) =
+  case step t of
+    Just t' -> Just (Succ t')
+    Nothing -> Nothing
+
+step (Fix t) =
+  Just (App t (Fix t))
+
+step (Case Zero t1 (y, t2)) =
+  Just t1
+
+step (Case (Succ t) t1 (y, t2)) =
+  Just $ subst t2 t y
+
+step (Case t t1 (y, t2)) =
+  case step t of
+    Just t' -> Just $ Case t' t1 (y, t2)
+    Nothing -> Nothing
+
 -- everything else is a normal form
 step _ = Nothing
 
@@ -62,6 +81,13 @@ subst (Abs y mty t)   t' x =
   Abs y' mty t''
   where
     (y', t'') = substituteUnderBinder (y, t) t' x
+
+subst Zero t' x     = Zero
+subst (Succ t) t' x = Succ (subst t t' x)
+subst (Fix t) t' x  = Fix (subst t t' x)
+subst (Case t t1 (y, t2)) t' x =
+  Case (subst t t' x) (subst t1 t' x) (substituteUnderBinder (y, t2) t' x)
+
 
 -- substituteUnderBinder (y, t) t' x = (y', t'')
 --  substitutes t' into t to yield t'' where y is a binder in t which gets freshened to y'
