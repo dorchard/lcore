@@ -1,0 +1,4 @@
+lang.pcf
+lang.typed
+
+(\(x : A) -> case succ zero of zero -> x | succ y -> x)

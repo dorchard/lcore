@@ -1,0 +1,22 @@
+lang.pcf
+
+plus =
+ fix (\plus' -> \n -> \m ->
+    case n of
+      zero -> m
+      -- (succ n') + m  ~> succ (n' + m)
+    | succ n' -> succ (plus' n' m))
+
+mult =
+  fix (\mult' -> \n -> \m ->
+    case n of
+      zero -> zero
+    | succ n' -> plus n (mult' n' m))
+
+fact =
+  fix (\fact' -> \n ->
+    case n of
+      zero -> succ zero
+    | succ n' -> mult n (fact' n'))
+
+fact (succ (succ (succ zero)))

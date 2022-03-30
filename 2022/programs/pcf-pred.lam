@@ -1,0 +1,6 @@
+lang.pcf
+
+pred =
+  \n -> case n of zero -> zero | succ n' -> n'
+
+pred (succ (succ zero))
