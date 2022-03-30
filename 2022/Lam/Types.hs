@@ -30,54 +30,81 @@ abs ------------------------
 -- Represent contexts as lists
 type Context = [(Identifier, Type)]
 
+type TypeError = String
+
+
 
 -- checking
 -- G |- t <= A
-check :: Context -> Expr -> Type -> Bool
-check = error "TODO"
+check :: Context -> Expr -> Type -> Either TypeError Bool
 
+{-
+
+       G, x : A |- t <= B
+abs ------------------------
+      G |- \x -> t <= A -> B
+
+-}
+
+check gamma (Abs x _ t) (FunTy tyA tyB) =
+  check ((x, tyA):gamma) t tyB
+
+{-
+
+    G |- e => A'    A == A'
+ ---------------------------
+    G |- e <= A
+
+-}
+
+-- Fall through
+check gamma e t =
+  case synth gamma e of
+    Right t'   -> Right $ t == t'
+    Left error -> Left error
 
 -- inference
 -- G |- t => A
-synth :: Context -> Expr -> Maybe Type
+synth :: Context -> Expr -> Either TypeError Type
 
 {-
 
 var ----------------------
        G, x : A |- x => A
 -}
-synth gamma (Var x) = lookup x gamma
+synth gamma (Var x) =
+  case lookup x gamma of
+    Just ty -> Right ty
+    Nothing -> Left $ "I don't know the type of free variable " ++ x
 
 {-
 
       G, x : A |- t => B
 abs ------------------------
-      G |- \x -> t => A -> B
+      G |- \(x:A) -> t => A -> B
 
 -}
 synth gamma (Abs x (Just tyA) t) =
 
   case synth ((x, tyA):gamma) t of
-    Just tyB -> Just (FunTy tyA tyB)
-    Nothing  -> Nothing
+    Right tyB -> Right (FunTy tyA tyB)
+    Left  err -> Left err
 
 {-
-     G |- t1 => A -> B      G |- t2 => A'    A == A'
+     G |- t1 => A -> B      G |- t2 <= A
 app ------------------------------------------------
-    G |- t1 t2 => B
+           G |- t1 t2 => B
 -}
 synth gamma (App t1 t2) =
   case synth gamma t1 of
-    Just (FunTy tyA tyB) ->
+    Right (FunTy tyA tyB) ->
 
-      case synth gamma t2 of
-        Just tyA' ->
-          if tyA == tyA' -- type of argument matches type of function parameter
-            then Just tyB
-            else error $ pprint tyA ++ " does not match " ++ pprint tyA'
-        Nothing -> Nothing
+      case check gamma t2 tyA of
+        Right True  -> Right tyB
+        Right False -> Left $ "Expected type " ++ pprint tyA
+        Left  err   -> Left err
 
-    Just _ -> error $ "Left hand side of application " ++ pprint t1 ++ " is not a function"
-    Nothing -> Nothing
+    Right _ -> Left $ "Left hand side of application " ++ pprint t1 ++ " is not a function"
+    Left err -> Left err
 
-synth _ t = error $ "Cannot infer type of " ++ pprint t
+synth _ t = Left $ "Cannot infer type of `" ++ pprint t ++ "`. Add more type signatures."
