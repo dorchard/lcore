@@ -35,14 +35,23 @@ tokens :-
   $white+                       ;
   @constr                       { \p s -> TokenConstr p s }
   "--".*                        ;
-  @sym				                  { \p s -> TokenSym p s }
-  "->"                          { \p s -> TokenArrow p }
-  ":"                           { \p s -> TokenColon p }
   \\                            { \p s -> TokenLambda p }
   \=                            { \p s -> TokenEq p }
   \(                            { \p s -> TokenLParen p }
   \)                            { \p s -> TokenRParen p }
+  -- Session 3 (lanugage options and typing)
   lang\.@langPrag               { \p s -> TokenLang p s }
+  "->"                          { \p s -> TokenArrow p }
+  ":"                           { \p s -> TokenColon p }
+  -- Session 4 (PCF)
+  "|"                           { \p s -> TokenSep p }
+  case                          { \p s -> TokenCase p }
+  of                            { \p s -> TokenOf p }
+  fix                           { \p s -> TokenFix p }
+  succ                          { \p s -> TokenSucc p }
+  zero                          { \p s -> TokenZero p }
+  @sym				                  { \p s -> TokenSym p s }
+  
 
 {
 
@@ -57,6 +66,12 @@ data Token
   | TokenLang     { posn :: AlexPosn, sym :: String }
   | TokenConstr   { posn :: AlexPosn, sym :: String }
   | TokenColon    { posn :: AlexPosn }
+  | TokenCase     { posn :: AlexPosn }
+  | TokenOf       { posn :: AlexPosn }
+  | TokenSep      { posn :: AlexPosn }
+  | TokenFix      { posn :: AlexPosn }
+  | TokenSucc     { posn :: AlexPosn }
+  | TokenZero     { posn :: AlexPosn }
   deriving (Eq, Show, Generic)
 
 symString :: Token -> String

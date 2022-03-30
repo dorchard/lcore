@@ -68,25 +68,17 @@ subst (Abs y mty t)   t' x =
               -- First freshen y intside of t
               freshened = subst t (Var freshVar) y
           -- then apply the substitution, capture has been avoided
-          in Abs freshVar mty (subst freshened t' x)
+          in (freshVar, subst freshened t' x)
 
-        else Abs y mty (subst t t' x)
+        else (y, subst t t' x)
 
 freeVars :: Expr -> [Identifier]
 freeVars (Var x)     = [x]
 freeVars (App t1 t2) = freeVars t1 ++ freeVars t2
 freeVars (Abs x _ t)   = deleteAll x (freeVars t)
   where deleteAll x xs = delete x (nub xs)
-
--- freeVars (x y) = [x, y]
--- freeVars (\x -> x y) = [y]
-
--- Problems with the above
---
---   Replacing bound variable:
---     subst (\y . y) t y        = \y . t
---   WHICH IS WRONG
-
---   Free variable now 'captured' by bound variable
---     subst (\x . \y . x z) (y y) z = \x . \y . x (y y)
---   WHICH IS WRONG
+-- PCF
+freeVars (Fix t)             = freeVars t
+freeVars (Case t t1 (x, t2)) = freeVars t ++ freeVars t1 ++ (delete x (freeVars t2))
+freeVars Zero                = []
+freeVars (Succ t)            = freeVars t
