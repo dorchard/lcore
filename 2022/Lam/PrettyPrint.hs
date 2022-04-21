@@ -34,6 +34,7 @@ instance PrettyPrint Expr where
                              ++ " succ " ++ x ++ " -> " ++ bracket_pprint e2
     pprint Zero     = "zero"
     pprint (Succ e) = "succ " ++ bracket_pprint e
+    pprint (Sig e t) = bracket_pprint e ++ " : " ++ pprint t
 
 
 instance PrettyPrint Type where

@@ -87,6 +87,7 @@ subst (Succ t) t' x = Succ (subst t t' x)
 subst (Fix t) t' x  = Fix (subst t t' x)
 subst (Case t t1 (y, t2)) t' x =
   Case (subst t t' x) (subst t1 t' x) (substituteUnderBinder (y, t2) t' x)
+subst (Sig t ty) t' x = Sig (subst t t' x) ty
 
 
 -- substituteUnderBinder (y, t) t' x = (y', t'')
@@ -116,3 +117,4 @@ freeVars (Fix t)             = freeVars t
 freeVars (Case t t1 (x, t2)) = freeVars t ++ freeVars t1 ++ (delete x (freeVars t2))
 freeVars Zero                = []
 freeVars (Succ t)            = freeVars t
+freeVars (Sig t _)           = freeVars t

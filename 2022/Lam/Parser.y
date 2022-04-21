@@ -79,6 +79,7 @@ Expr :: { Expr }
                                     (error "`case` doesn't exist in the lambda calculus") }
 
   | succ Atom                 {% ifM isPCFM (return $ Succ $2) (return $ App (Var "succ") $2) }
+  | Expr ':' Type             { Sig $1 $3 }
 
 Type :: { Type }
   : Type '->' Type            { FunTy $1 $3 }
