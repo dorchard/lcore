@@ -1,0 +1,11 @@
+lang.pcf
+lang.typed
+
+plus =
+ fix (\ plus' -> \n -> \m ->
+    case n of
+      zero -> m
+      -- (succ n') + m  ~> succ (n' + m)
+    | succ n' -> succ (plus' n' m)) : Nat -> Nat -> Nat
+
+plus (succ zero) zero

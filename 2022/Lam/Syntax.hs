@@ -7,6 +7,7 @@ data Expr =
     Var Identifier            -- x, y
   | App Expr Expr             -- t1 t2
   | Abs Identifier (Maybe Type) Expr  -- \x . t  or \(x : A) . t
+  | Sig Expr Type              -- e : t
   -- PCF terms
   | Fix Expr                  -- fix t
   | Case Expr Expr (Identifier, Expr) -- case e of zero -> e1 | succ x -> e2
