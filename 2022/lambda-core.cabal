@@ -1,15 +1,17 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
+-- This file has been generated from package.yaml by hpack version 0.31.2.
 --
 -- see: https://github.com/sol/hpack
+--
+-- hash: ce749f0a5c40746c358b637956e345d080cee3b1eb2b1034309476bb33290b8a
 
 name:           lambda-core
 version:        0.1
 synopsis:       Simple language
 author:         Dominic Orchard
 maintainer:     Dominic Orchard
-copyright:      2019 authors
+copyright:      2019-2022 authors
 license:        BSD3
 build-type:     Simple
 
@@ -19,13 +21,13 @@ executable lcore
       Lam.Lexer
       Lam.Options
       Lam.Parser
-      Lam.PrettyPrint
-      Lam.Semantics
       Lam.Syntax
+      Lam.Semantics
       Lam.Types
+      Lam.PrettyPrint
       Paths_lambda_core
   hs-source-dirs:
-      ./
+      ./.
   ghc-options: -O0 -Wall -Werror -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-unused-matches -Wno-name-shadowing -Wno-type-defaults -main-is Lam
   build-tools:
       alex
@@ -37,4 +39,5 @@ executable lcore
     , filepath
     , text
     , transformers
+    , containers
   default-language: Haskell2010
