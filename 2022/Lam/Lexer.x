@@ -42,6 +42,7 @@ tokens :-
   -- Session 3 (lanugage options and typing)
   lang\.@langPrag               { \p s -> TokenLang p s }
   "->"                          { \p s -> TokenArrow p }
+  "=>"                          { \p s -> TokenDoubleArrow p }
   ":"                           { \p s -> TokenColon p }
   -- Session 4 (PCF)
   "|"                           { \p s -> TokenSep p }
@@ -50,6 +51,7 @@ tokens :-
   fix                           { \p s -> TokenFix p }
   succ                          { \p s -> TokenSucc p }
   zero                          { \p s -> TokenZero p }
+  fn                            { \p s -> TokenFun p }
   @sym				                  { \p s -> TokenSym p s }
   
 
@@ -60,6 +62,8 @@ data Token
   | TokenSym      { posn :: AlexPosn, sym :: String }
   | TokenEq       { posn :: AlexPosn }
   | TokenArrow    { posn :: AlexPosn }
+  | TokenDoubleArrow { posn :: AlexPosn }
+  | TokenFun      { posn :: AlexPosn }
   | TokenLParen   { posn :: AlexPosn }
   | TokenRParen   { posn :: AlexPosn }
   | TokenNL       { posn :: AlexPosn }

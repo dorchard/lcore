@@ -26,12 +26,14 @@ import Lam.Options
     nl      { TokenNL _ }
     '\\'    { TokenLambda _ }
     '->'    { TokenArrow _ }
+    '=>'    { TokenDoubleArrow _ }
     '='     { TokenEq _ }
     ':'     { TokenColon _ }
     '('     { TokenLParen _ }
     ')'     { TokenRParen _ }
     LANG    { TokenLang _ _ }
     case    { TokenCase _ }
+    fn      { TokenFun _ }
     of      { TokenOf _ }
     fix     { TokenFix _ }
     zero    { TokenZero _ }
@@ -61,12 +63,12 @@ NL :: { () }
   | nl                        { }
 
 Def :: { Expr -> Expr }
-  : VAR '=' Expr { \program -> App (Abs (symString $1) Nothing program) $3 }
+  : Variable '=' Expr { \program -> App (Abs $1 Nothing program) $3 }
 
 Expr :: { Expr }
-  : '\\' VAR '->' Expr        { Abs (symString $2) Nothing $4 }
+  : FunStart VAR FunArrow Expr        { Abs (symString $2) Nothing $4 }
 
-  | '\\' '(' VAR ':' Type ')' '->' Expr
+  | FunStart '(' VAR ':' Type ')' FunArrow Expr
                               { Abs (symString $3) (Just $5) $8 }
   | Juxt
     { $1 }
@@ -93,16 +95,39 @@ Atom :: { Expr }
   : '(' Expr ')'              { $2 }
   | VAR                       { Var (symString $1) }
   | zero                      {% ifM isPCFM (return Zero) (return $ Var "zero") }
-  
+
+Variable :: { String }
+ : VAR  { symString $1 }
+ | zero { "zero" }
+ | succ { "succ" }
+
+FunArrow :: { () }
+  : '->' { () }
+  | '=>' {% allowSMLsyntax "=>" }
+
+FunStart :: { () }
+  : '\\'  { () }
+  | fn    {% allowSMLsyntax "fn" }
+
+
 {
 type ParserMonad a = StateT [Option] (ReaderT String (Either String)) a
 
 isPCFM :: ParserMonad Bool
 isPCFM = get >>= (return . isPCF)
 
+allowSMLsyntax :: String -> ParserMonad ()
+allowSMLsyntax token =  do
+  flag <- get
+  if isSMLsyntax flag
+    then (return ())
+    else (error $ "Unexpected `" <> token <> "`; Perhaps you want to include lang.sml-syntax?")
+
 readOption :: Token -> ParserMonad Option
 readOption (TokenLang _ x) | x == "lang.typed" = return Typed
 readOption (TokenLang _ x) | x == "lang.pcf"   = return PCF
+readOption (TokenLang _ x) | x == "lang.cbv"   = return CBV
+readOption (TokenLang _ x) | x == "lang.syntax"   = return SMLSyntax
 readOption (TokenLang _ x) = lift . lift . Left $ "Unknown language option: " <> x
 readOption _ = lift . lift . Left $ "Wrong token for language"
 
@@ -116,7 +141,7 @@ parseError [] = lift . lift . Left $ "Premature end of file"
 parseError t  =  do
     file <- lift $ ask
     lift . lift . Left $ file <> ":" <> show l <> ":" <> show c
-                        <> ": parse error (token is ) " <> show t
+                        <> ": parse error (token is " <> (show $ head t) <> ")"
   where (l, c) = getPos (head t)
 
 parseProgram :: FilePath -> String -> Either String (Expr, [Option])

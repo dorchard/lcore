@@ -1,7 +1,10 @@
+{-# LANGUAGE ImplicitParams #-}
+
 module Lam.Types where
 
 import Lam.Syntax
 import Lam.PrettyPrint
+import Lam.Options
 
 {-
 
@@ -36,7 +39,7 @@ type TypeError = String
 
 -- checking
 -- G |- t <= A
-check :: Context -> Expr -> Type -> Maybe TypeError
+check :: (?options :: [Option]) => Context -> Expr -> Type -> Maybe TypeError
 
 {-
 
@@ -72,7 +75,7 @@ check gamma e t =
 
 -- inference
 -- G |- t => A
-synth :: Context -> Expr -> Either TypeError Type
+synth :: (?options :: [Option]) => Context -> Expr -> Either TypeError Type
 
 {-
 

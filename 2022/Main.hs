@@ -1,3 +1,5 @@
+{-# LANGUAGE ImplicitParams #-}
+
 module Lam where
 
 import Lam.Options
@@ -27,7 +29,7 @@ main = do
           -- Read the file, parse, and do something...
           input <- readFile fname
           case parseProgram fname input of
-            Right (ast, options) -> do
+            Right (ast, options) -> let ?options = options in do
               -- Show AST
               putStrLn $ "\n " <> ansi_bold <> "AST: " <> ansi_reset <> show ast
 
