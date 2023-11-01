@@ -1,0 +1,23 @@
+lang.syntax
+
+zero = fn f => fn x => x
+one  = fn f => fn x => f x
+two  = fn f => fn x => f (f x)
+three = fn f => fn x => f (f (f x))
+-- and so on!
+
+plus = fn a => fn b => fn f => fn x => a f (b f x)
+
+mult = fn a => fn b => fn f => fn x => a (b f) x -- or m (n f) x
+
+pred = fn n => fn f => fn x => n (fn g => fn h => h (g f)) (fn u => x) (fn u => u)
+
+true  = fn x => fn y => x 
+false = fn x => fn y => y -- same as zero by alpha renaming
+isZero = fn n => n (fn x => false) true
+
+y = fn f => (fn x => f (x x)) (fn x => f (x x))
+
+fact = y (fn fact' => fn n => isZero n one (mult n (fact' (pred n))))
+
+fact three
