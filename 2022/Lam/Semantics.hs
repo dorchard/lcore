@@ -1,31 +1,58 @@
+{-# LANGUAGE ImplicitParams #-}
+
 module Lam.Semantics where
 
 import Data.List (nub, delete)
 import Lam.Syntax
+import Lam.Options
 
 -- reduce to normal form with number of reductions
-multiStep :: Expr -> (Expr, Int)
+multiStep :: (?options :: [Option]) => Expr -> (Expr, Int)
 multiStep t =
-  case step t of
+  let step' = if CBV `elem` ?options then stepCBV else stepCBN in
+  case step' t of
     Nothing -> (t, 0)
-    Just t' -> let (t'', n) = multiStep t' in (t'', n + 1)
+    Just t' ->
+      let (t'', n) = multiStep t' in (t'', n + 1)
 
--- single step reduction
-step :: Expr -> Maybe Expr
+-- single step reduction - call-by-value
+stepCBV :: Expr -> Maybe Expr
+stepCBV (App (Abs x ty t) t2) = 
+  case stepCBV t2 of
+    Just t2' -> Just (App (Abs x ty t) t2')
+    Nothing  -> Just (subst t t2 x)
+
+stepCBV (App t1 t2) = 
+  case stepCBV t1 of
+    Just t1' -> Just (App t1' t2)
+    Nothing ->
+      case stepCBV t2 of
+        Just t2' -> Just (App t1 t2')
+        Nothing  -> Nothing
+
+stepCBV (Abs x ty t) =
+  case stepCBV t of
+    Just t' -> Just (Abs x ty t')
+    Nothing -> Nothing
+
+stepCBV _ = Nothing
+
+-- single step reduction - call-by-name
+stepCBN :: Expr -> Maybe Expr
 
 --
 --   --------------------------- beta
 --    (\x . t) t'  ~>  t[t'/x]
 
-step (App (Abs x _ t) t') = Just (subst t t' x)
+stepCBN (App (Abs x _ t) t') = Just (subst t t' x)
 
-step (App t1 t2) =
+stepCBN (App t1 t2) =
 
 --           t1 ~> t1'
 --   --------------------------- appL
 --       t1 t2  ~>  t1' t2
 
-  case step t1 of
+  case stepCBN t1 of
     Just t1' -> Just (App t1' t2)
     Nothing  ->
 
@@ -33,7 +60,7 @@ step (App t1 t2) =
 --   --------------------------- appR
 --       t1 t2  ~>  t1 t2'
 
-      case step t2 of
+      case stepCBN t2 of
         Just t2' -> Just (App t1 t2')
         Nothing  -> Nothing
 
@@ -41,32 +68,32 @@ step (App t1 t2) =
 --   --------------------------- abs
 --       \y . t  ~>  \y . t'
 
-step (Abs y mty t) =
-  case step t of
+stepCBN (Abs y mty t) =
+  case stepCBN t of
     Just t' -> Just (Abs y mty t')
     Nothing -> Nothing
 
-step (Succ t) =
-  case step t of
+stepCBN (Succ t) =
+  case stepCBN t of
     Just t' -> Just (Succ t')
     Nothing -> Nothing
 
-step (Fix t) =
+stepCBN (Fix t) =
   Just (App t (Fix t))
 
-step (Case Zero t1 (y, t2)) =
+stepCBN (Case Zero t1 (y, t2)) =
   Just t1
 
-step (Case (Succ t) t1 (y, t2)) =
+stepCBN (Case (Succ t) t1 (y, t2)) =
   Just $ subst t2 t y
 
-step (Case t t1 (y, t2)) =
-  case step t of
+stepCBN (Case t t1 (y, t2)) =
+  case stepCBN t of
     Just t' -> Just $ Case t' t1 (y, t2)
     Nothing -> Nothing
 
 -- everything else is a normal form
-step _ = Nothing
+stepCBN _ = Nothing
 
 
 
