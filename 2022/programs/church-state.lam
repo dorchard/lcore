@@ -1,0 +1,27 @@
+lang.syntax
+
+-- Natural numbers
+zero = fn f => fn x => x
+one  = fn f => fn x => f x
+plus = fn a => fn b => fn f => fn x => a f (b f x)
+
+--  Pairs
+pair  = fn x => fn y => fn z => z x y
+fst = fn p => p (fn x => fn y => x)
+snd = fn p => p (fn x => fn y => y)
+
+-- Skip
+skip = fn x => x
+
+-- State operations 
+get = fn s => pair s s 
+put = fn n => fn s => pair skip n
+
+-- sequence m1 (fn x => m2) captures `x = m1; m2` where `x` is a temporary variable
+-- to pass the result to m2
+sequence = fn m1 => fn m2 => fn s => m2 (fst (m1 s)) (snd (m1 s))
+
+-- Incrementing computation
+inc = sequence get (fn x => put (plus x one))
+
+snd (inc one)

@@ -16,7 +16,7 @@ true  = fn x => fn y => x
 false = fn x => fn y => y -- same as zero by alpha renaming
 isZero = fn n => n (fn x => false) true
 
-y = fn f => (fn x => f (x x)) (fn x => f (x x))
+y    = fn f => (fn x => f (x x)) (fn x => f (x x))
 
 fact = y (fn fact' => fn n => isZero n one (mult n (fact' (pred n))))
 
