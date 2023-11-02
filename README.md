@@ -11,6 +11,10 @@ Get stack here: http://docs.haskellstack.org/en/stable/README/
 
 See `programs/simple.lam` and `test.lam`.
 
+## Versions
+
+There is a simplified subset in the [2022 directory](https://github.com/dorchard/lcore/tree/main/2022).
+
 ## Rough idea for the list of topics:
     
  - [x] Session 1: Intro to the syntax and concepts of the lambda calculus, 
