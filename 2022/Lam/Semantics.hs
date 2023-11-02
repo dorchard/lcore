@@ -15,27 +15,6 @@ multiStep t =
     Just t' ->
       let (t'', n) = multiStep t' in (t'', n + 1)
 
--- single step reduction - call-by-value
-stepCBV :: Expr -> Maybe Expr
-stepCBV (App (Abs x ty t) t2) = 
-  case stepCBV t2 of
-    Just t2' -> Just (App (Abs x ty t) t2')
-    Nothing  -> Just (subst t t2 x)
-
-stepCBV (App t1 t2) = 
-  case stepCBV t1 of
-    Just t1' -> Just (App t1' t2)
-    Nothing ->
-      case stepCBV t2 of
-        Just t2' -> Just (App t1 t2')
-        Nothing  -> Nothing
-
-stepCBV (Abs x ty t) =
-  case stepCBV t of
-    Just t' -> Just (Abs x ty t')
-    Nothing -> Nothing
-
-stepCBV _ = Nothing
 
 -- single step reduction - call-by-name
 stepCBN :: Expr -> Maybe Expr
@@ -56,9 +35,11 @@ stepCBN (App t1 t2) =
     Just t1' -> Just (App t1' t2)
     Nothing  ->
 
+-- Not necessary for call-by-name but useful
+
 --           t2 ~> t2'
 --   --------------------------- appR
---       t1 t2  ~>  t1 t2'
+--       v t2  ~>  v t2'
 
       case stepCBN t2 of
         Just t2' -> Just (App t1 t2')
@@ -72,6 +53,8 @@ stepCBN (Abs y mty t) =
   case stepCBN t of
     Just t' -> Just (Abs y mty t')
     Nothing -> Nothing
+
+-- PCF SEMANTICS
 
 stepCBN (Succ t) =
   case stepCBN t of
@@ -95,6 +78,28 @@ stepCBN (Case t t1 (y, t2)) =
 -- everything else is a normal form
 stepCBN _ = Nothing
 
+
+-- single step reduction - call-by-value
+stepCBV :: Expr -> Maybe Expr
+stepCBV (App (Abs x ty t) t2) = 
+  case stepCBV t2 of
+    Just t2' -> Just (App (Abs x ty t) t2')
+    Nothing  -> Just (subst t t2 x)
+
+stepCBV (App t1 t2) = 
+  case stepCBV t1 of
+    Just t1' -> Just (App t1' t2)
+    Nothing ->
+      case stepCBV t2 of
+        Just t2' -> Just (App t1 t2')
+        Nothing  -> Nothing
+
+stepCBV (Abs x ty t) =
+  case stepCBV t of
+    Just t' -> Just (Abs x ty t')
+    Nothing -> Nothing
+
+stepCBV _ = Nothing
 
 
 -- subst t t' x  computes t[t'/x]
