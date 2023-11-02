@@ -1,0 +1,62 @@
+lang.syntax
+
+-- Natural numbers (inductively)
+zero  = fn f => fn x => x
+suc   = fn a => fn f => fn x => a f (f x)
+
+-- Some more naturals
+one   = suc zero
+two   = suc one
+three = suc two
+
+-- a + b
+plus = fn a => fn b => (fn f => fn x => a f (b f x))
+-- a * b
+mult = fn a => fn b => (fn f => fn x => a (b f) x)
+-- pred a
+pred = fn n => fn f => fn x =>  n (fn g => fn h => h (g f)) (fn u => x) (fn u => u)
+
+-- Booleans
+false  = fn x => fn y => y -- same as zero!
+true   = fn x => fn y => x
+ifZero = fn n => n (fn z => false) true
+
+-- Recursion
+y = fn f => (fn x => f (x x)) (fn x => f (x x))
+
+-- fact n = if n == 0 then 1 else n * fact (n - 1)
+fact = y (fn fact' => fn n => ifZero n one (mult n (fact' (pred n))))
+
+--  fact 4 = 24
+--fact (suc three)
+
+-- Pairs
+-- <e1, e2> = pair e1 e2
+pair = fn x => fn y => fn elim => elim x y
+fst  = fn p => p (fn x => fn y => x)
+snd  = fn p => p (fn x => fn y => y)
+
+-- Skip
+skip = fn z => z
+
+-- State operations
+get = fn s => pair s s
+put = fn n => fn s => pair skip n
+
+-- Sequence
+-- sequence e1 (fn x => e2) capture `x = e1; e2`
+-- <v1, s'> = e1 s
+-- <v2, s''> = e2 v1 s'
+
+-- Or with a typed view:
+-- e1 :: s -> (a, s)
+-- e2 :: a -> (s -> (b, s))
+-- sequence e1 e2 :: s -> (b, s)
+sequence = fn e1 => fn e2 => fn s => e2 (fst (e1 s)) (snd (e1 s))
+
+-- Increment function
+inc = sequence get (fn n => put (plus n one))
+
+-- increment the store, get the value, put the factorial of the value in
+-- run this program with initial store 3 and get the answer out!
+snd (sequence inc (fn z => sequence get (fn n => put (fact n))) three)
