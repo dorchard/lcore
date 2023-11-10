@@ -1,5 +1,8 @@
 lang.syntax
 
+-- Example of the power of lambda: encoding to represent updating a memory state
+-- and then computing factorial!
+
 -- Natural numbers (inductively)
 zero  = fn f => fn x => x
 suc   = fn a => fn f => fn x => a f (f x)
