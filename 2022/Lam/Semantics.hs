@@ -81,12 +81,12 @@ stepCBN _ = Nothing
 
 -- single step reduction - call-by-value
 stepCBV :: Expr -> Maybe Expr
-stepCBV (App (Abs x ty t) t2) = 
+stepCBV (App (Abs x ty t) t2) =
   case stepCBV t2 of
     Just t2' -> Just (App (Abs x ty t) t2')
     Nothing  -> Just (subst t t2 x)
 
-stepCBV (App t1 t2) = 
+stepCBV (App t1 t2) =
   case stepCBV t1 of
     Just t1' -> Just (App t1' t2)
     Nothing ->
