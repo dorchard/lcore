@@ -27,6 +27,8 @@ ifZero = fn n => n (fn z => false) true
 -- Recursion
 y = fn f => (fn x => f (x x)) (fn x => f (x x))
 
+-- *** Functional factorial ***
+
 -- fact n = if n == 0 then 1 else n * fact (n - 1)
 fact = y (fn fact' => fn n => ifZero n one (mult n (fact' (pred n))))
 
@@ -55,11 +57,23 @@ put = fn n => fn s => pair skip n
 -- e1 :: s -> (a, s)
 -- e2 :: a -> (s -> (b, s))
 -- sequence e1 e2 :: s -> (b, s)
-sequence = fn e1 => fn e2 => fn s => e2 (fst (e1 s)) (snd (e1 s))
+seq = fn e1 => fn e2 => fn s => e2 (fst (e1 s)) (snd (e1 s))
 
 -- Increment function
-inc = sequence get (fn n => put (plus n one))
+inc = seq get (fn n => put (plus n one))
 
 -- increment the store, get the value, put the factorial of the value in
 -- run this program with initial store 3 and get the answer out!
-snd (sequence inc (fn z => sequence get (fn n => put (fact n))) three)
+-- snd (seq inc (fn z => seq get (fn n => put (fact n))) three)
+
+-- *** Imperative factorial ***
+
+-- z := 0
+-- fact n = if n == 0 then z := 1 else fact (n - 1); z := z * n
+
+factI = y (fn factrec => fn n =>
+                ifZero n (put one)
+                         (seq (factrec (pred n)) (fn z => seq get (fn m => put (mult n m)))))
+
+-- Computer 4! = 24  (with initial store of 0)
+snd (factI (suc three) zero)
